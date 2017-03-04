@@ -3,7 +3,7 @@ int trans_pin1 = 10;
 int trans_pin2 = 11;
 int temp_pin = A0;
 int sps = 1000; // scans per second
-int delays = 0;
+int delays = 10;
 
 float vol = 0;
 int temp = 0;
