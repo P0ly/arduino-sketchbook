@@ -26,14 +26,14 @@ Temperature(°C) = (Voltage - 0.5) * 100
 
 PINS | LED-Position
 -----|-------------
-Q0   | middle
-Q1   | top left
-Q2   | top
-Q3   | top right
-Q4   | bottom left
-Q5   | bottom
-Q6   | bottom right
-Q7   | dot
+0    | middle
+1    | top left
+2    | top
+3    | top right
+4    | bottom left
+5    | bottom
+6    | bottom right
+7    | dot
 
 Source:
 [https://commons.wikimedia.org/wiki/File:7-Segment_Display_Visual_Pinout_Diagram.svg](https://commons.wikimedia.org/wiki/File:7-Segment_Display_Visual_Pinout_Diagram.svg)
