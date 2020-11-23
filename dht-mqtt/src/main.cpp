@@ -11,38 +11,41 @@
 #define MQTT_SERVER "homer"
 #define ENTITY_ID "wohnzimmer_sensor"
 #define FRIENDLY_NAME "Wohnzimmer"
-#define TOPIC_STATE "homeassistant/sensor/wohnzimmer_sensor/state"
-#define TOPIC_AVAILABLE "homeassistant/sensor/wohnzimmer_sensor/available"
+#define TOPIC_BASE "homeassistant/sensor/" ENTITY_ID
+#define TOPIC_STATE TOPIC_BASE "/state"
+#define TOPIC_AVAILABLE TOPIC_BASE "/available"
 #define MSG_FORMAT "{\"temp\": %2.1f,\"humi\": %2.1f, \"hi\": %2.1f}"
-#define MSG_CONFIG_FORMAT "{\"device_class\": \"%s\",\"name\": \"%s %s\",\"state_topic\": \"%s\",\"unit_of_measurement\": \"%s\",\"value_template\": \"{{ value_json.%s }}\",\"availability_topic\": \"%s\",\"payload_available\": \"online\",\"payload_not_available\": \"offline\",\"unique_id\": \"%s_%s\",\"device\": {\"identifiers\": [\"%s\"],\"name\": \"%s\",\"model\": \"%s\"},\"icon\": \"%s\"}"
+#define MSG_CONFIG_FORMAT "{\"dev_cla\": \"%s\",\"name\": \"" FRIENDLY_NAME " %s\",\"stat_t\": \"" TOPIC_STATE "\",\"unit_of_meas\": \"%s\",\"val_tpl\": \"{{ value_json.%s }}\",\"avty_t\": \"" TOPIC_AVAILABLE "\",\"pl_avail\": \"online\",\"pl_not_avail\": \"offline\",\"uniq_id\": \"" ENTITY_ID "_%s\",\"dev\": {\"ids\": [\"%s\",\"%s\"],\"name\": \"" ENTITY_ID "\",\"mdl\": \"" SENSOR_NAME "\"},\"icon\": \"%s\"}"
+// "temperature", "Temperatur", "°C", "temp", temp", SERIAL_NO, "mdi:thermometer"
+char* DEVICE_ID;
 
 // sensor
 #define SENSOR_NAME "AM2302"
-#define SERIAL_NO "SNH1193000B77"
-#define TOPIC_CONF_TEMP "homeassistant/sensor/wohnzimmer_sensor_temp/config"
-#define TOPIC_CONF_HUMI "homeassistant/sensor/wohnzimmer_sensor_humi/config"
-#define TOPIC_CONF_HI "homeassistant/sensor/wohnzimmer_sensor_hi/config"
+#define SERIAL_NO "replaceme"
+#define TOPIC_CONF_TEMP TOPIC_BASE "_temp/config"
+#define TOPIC_CONF_HUMI TOPIC_BASE "_humi/config"
+#define TOPIC_CONF_HI TOPIC_BASE "_hi/config"
 #define DHT_TYPE DHT22 // DHT 22  (AM2302), AM2321
 #define DHT_PIN D5
 DHT dht(DHT_PIN, DHT_TYPE);
 
 // #define DHT_2
 #if defined(DHT_2)
-#define SERIAL_NO_2 ""
-#define TOPIC_CONF_TEMP_2 "homeassistant/sensor/wohnzimmer_sensor_temp_2/config"
-#define TOPIC_CONF_HUMI_2 "homeassistant/sensor/wohnzimmer_sensor_humi_2/config"
-#define TOPIC_CONF_HI_2 "homeassistant/sensor/wohnzimmer_sensor_hi_2/config"
+#define SERIAL_NO_2 "replacemetoo"
+#define TOPIC_CONF_TEMP_2 TOPIC_BASE "_temp_2/config"
+#define TOPIC_CONF_HUMI_2 TOPIC_BASE "_humi_2/config"
+#define TOPIC_CONF_HI_2 TOPIC_BASE "_hi_2/config"
 #define MSG_FORMAT "{\"temp\": %2.1f,\"humi\": %2.1f, \"hi\": %2.1f, \"temp_2\": %2.1f,\"humi_2\": %2.1f, \"hi_2\": %2.1f}"
-#define DHT_PIN_2 D6
-#define DHT_TYPE_2 DHT22
-DHT dht2(DHT_PIN_2, DHT_TYPE_2);
+#define DHT_2_PIN D6
+#define DHT_2_TYPE DHT22
+DHT dht2(DHT_2_PIN, DHT_2_TYPE);
 #endif
 
 // mqtt
 WiFiClient espClient;
 PubSubClient client(espClient);
 unsigned long lastMsg = 0;
-#define MSG_BUFFER_SIZE (2000)
+#define MSG_BUFFER_SIZE (1000)
 char msg[MSG_BUFFER_SIZE];
 
 long timestamp = 0L;
@@ -99,42 +102,31 @@ boolean reconnect()
 
     // auto discovery config
     // config dht_temp
-    snprintf(msg, MSG_BUFFER_SIZE, MSG_CONFIG_FORMAT,
-             "temperature", FRIENDLY_NAME, "Temperatur", TOPIC_STATE, "°C", "temp", TOPIC_AVAILABLE,
-             ENTITY_ID, "temp", SERIAL_NO, ENTITY_ID, SENSOR_NAME, "mdi:thermometer");
+    snprintf(msg, MSG_BUFFER_SIZE, MSG_CONFIG_FORMAT, "temperature", "Temperatur", "°C", "temp", "temp", SERIAL_NO, DEVICE_ID, "mdi:thermometer");
     if (!client.publish(TOPIC_CONF_TEMP, msg, true))
       Serial.printf("publish to %s failed\n", TOPIC_CONF_TEMP);
     // config dht_humi
-    snprintf(msg, MSG_BUFFER_SIZE, MSG_CONFIG_FORMAT,
-             "humidity", FRIENDLY_NAME, "Luftfeuchtigkeit", TOPIC_STATE, "%", "humi", TOPIC_AVAILABLE,
-             ENTITY_ID, "humi", SERIAL_NO, ENTITY_ID, SENSOR_NAME, "mdi:water-percent");
+    snprintf(msg, MSG_BUFFER_SIZE, MSG_CONFIG_FORMAT, "humidity", "Luftfeuchtigkeit", "%", "humi", "humi", SERIAL_NO, DEVICE_ID, "mdi:water-percent");
     if (!client.publish(TOPIC_CONF_HUMI, msg, true))
       Serial.printf("publish to %s failed\n", TOPIC_CONF_HUMI);
     // config dht_hi
-    snprintf(msg, MSG_BUFFER_SIZE, MSG_CONFIG_FORMAT,
-             "temperature", FRIENDLY_NAME, "Hitzeindex", TOPIC_STATE, "°C", "hi", TOPIC_AVAILABLE,
-             ENTITY_ID, "hi", SERIAL_NO, ENTITY_ID, SENSOR_NAME, "mdi:thermometer");
+    snprintf(msg, MSG_BUFFER_SIZE, MSG_CONFIG_FORMAT, "temperature", "Hitzeindex", "°C", "hi", "hi", SERIAL_NO, DEVICE_ID, "mdi:thermometer");
     if (!client.publish(TOPIC_CONF_HI, msg, true))
       Serial.printf("publish to %s failed\n", TOPIC_CONF_HI);
 #if defined(DHT_2)
     // config dht_2_temp
-    snprintf(msg, MSG_BUFFER_SIZE, MSG_CONFIG_FORMAT,
-             "temperature", FRIENDLY_NAME, "Temperatur", TOPIC_STATE, "°C", "temp", TOPIC_AVAILABLE,
-             ENTITY_ID, "temp", SERIAL_NO, ENTITY_ID, SENSOR_NAME, "mdi:thermometer");
-    if (!client.publish(TOPIC_CONF_TEMP, msg, true))
-      Serial.printf("publish to %s failed\n", TOPIC_CONF_TEMP);
+    snprintf(msg, MSG_BUFFER_SIZE, MSG_CONFIG_FORMAT, "temperature", "Außentemperatur", "°C", "temp_2", "temp_outdoor", SERIAL_NO_2, DEVICE_ID, "mdi:thermometer");
+    
+    if (!client.publish(TOPIC_CONF_TEMP_2, msg, true))
+      Serial.printf("publish to %s failed\n", TOPIC_CONF_TEMP_2);
     // config dht_2_humi
-    snprintf(msg, MSG_BUFFER_SIZE, MSG_CONFIG_FORMAT,
-             "humidity", FRIENDLY_NAME, "Luftfeuchtigkeit", TOPIC_STATE, "%", "humi", TOPIC_AVAILABLE,
-             ENTITY_ID, "humi", SERIAL_NO, ENTITY_ID, SENSOR_NAME, "mdi:water-percent");
-    if (!client.publish(TOPIC_CONF_HUMI, msg, true))
-      Serial.printf("publish to %s failed\n", TOPIC_CONF_HUMI);
+    snprintf(msg, MSG_BUFFER_SIZE, MSG_CONFIG_FORMAT, "humidity", "Außenluftfeuchtigkeit", "%", "humi_2", "humi_outdoor", SERIAL_NO_2, DEVICE_ID, "mdi:water-percent");
+    if (!client.publish(TOPIC_CONF_HUMI_2, msg, true))
+      Serial.printf("publish to %s failed\n", TOPIC_CONF_HUMI_2);
     // config dht_2_hi
-    snprintf(msg, MSG_BUFFER_SIZE, MSG_CONFIG_FORMAT,
-             "temperature", FRIENDLY_NAME, "Hitzeindex", TOPIC_STATE, "°C", "hi", TOPIC_AVAILABLE,
-             ENTITY_ID, "hi", SERIAL_NO, ENTITY_ID, SENSOR_NAME, "mdi:thermometer");
-    if (!client.publish(TOPIC_CONF_HI, msg, true))
-      Serial.printf("publish to %s failed\n", TOPIC_CONF_HI);
+    snprintf(msg, MSG_BUFFER_SIZE, MSG_CONFIG_FORMAT, "temperature", "Außenhitzeindex", "°C", "hi_2", "hi_outdoor", SERIAL_NO_2, DEVICE_ID, "mdi:thermometer");
+    if (!client.publish(TOPIC_CONF_HI_2, msg, true))
+      Serial.printf("publish to %s failed\n", TOPIC_CONF_HI_2);
 #endif
     // set status to online
     if (!client.publish(TOPIC_AVAILABLE, "online", true))
@@ -210,7 +202,9 @@ void setup()
       Serial.println("End Failed");
   });
   ArduinoOTA.begin();
-  Serial.println(ArduinoOTA.getHostname());
+  DEVICE_ID = (char*) malloc(sizeof(char)*(ArduinoOTA.getHostname().length()+1));
+  strcpy(DEVICE_ID, ArduinoOTA.getHostname().c_str());
+  Serial.println(DEVICE_ID);
 
   // setup dht22
   pinMode(DHT_PIN, INPUT_PULLUP);
