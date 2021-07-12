@@ -6,11 +6,10 @@
 #include <DHT.h>
 #include <PubSubClient.h>
 #include "secrets.h"
+#include "config.h"
 
 #define READ_SENSORS_INTERVAL_MS 300000
 #define MQTT_SERVER "homer"
-#define ENTITY_ID "wohnzimmer_sensor"
-#define FRIENDLY_NAME "Wohnzimmer"
 #define TOPIC_BASE "homeassistant/sensor/" ENTITY_ID
 #define TOPIC_STATE TOPIC_BASE "/state"
 #define TOPIC_AVAILABLE TOPIC_BASE "/available"
@@ -21,7 +20,6 @@ char* DEVICE_ID;
 
 // sensor
 #define SENSOR_NAME "AM2302"
-#define SERIAL_NO "replaceme"
 #define TOPIC_CONF_TEMP TOPIC_BASE "_temp/config"
 #define TOPIC_CONF_HUMI TOPIC_BASE "_humi/config"
 #define TOPIC_CONF_HI TOPIC_BASE "_hi/config"
@@ -31,7 +29,6 @@ DHT dht(DHT_PIN, DHT_TYPE);
 
 // #define DHT_2
 #if defined(DHT_2)
-#define SERIAL_NO_2 "replacemetoo"
 #define TOPIC_CONF_TEMP_2 TOPIC_BASE "_temp_2/config"
 #define TOPIC_CONF_HUMI_2 TOPIC_BASE "_humi_2/config"
 #define TOPIC_CONF_HI_2 TOPIC_BASE "_hi_2/config"

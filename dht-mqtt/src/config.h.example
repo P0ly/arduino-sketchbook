@@ -1,0 +1,4 @@
+#define ENTITY_ID "keller_sensor"
+#define FRIENDLY_NAME "Keller"
+#define SERIAL_NO "serial_number_of_sensor"
+#define SERIAL_NO_2 "replacemetoo"
